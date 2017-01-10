@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using QuickFix;
 using QuickFix.Fields;
-using System.Threading;
 using NLog;
-using Forms = System.Windows.Forms;
 
 namespace Client_Application
 {
@@ -17,7 +15,7 @@ namespace Client_Application
         private long quoteMessageCount = 0;
         private static Logger logger = LogManager.GetCurrentClassLogger();
         private Dictionary<string, string> marketData = new Dictionary<string, string>();
-        private List<QuickFix.FIX44.ExecutionReport> trades = new List<QuickFix.FIX44.ExecutionReport>();
+        public List<QuickFix.FIX44.ExecutionReport> trades = new List<QuickFix.FIX44.ExecutionReport>();
         private ExcelInsert excel = new ExcelInsert();
         private static List<Double> bidPrices = new List<Double>();
         private static List<Double> askPrices = new List<Double>();
@@ -27,6 +25,7 @@ namespace Client_Application
         private const Decimal brokerage = 0.005m;
         private long totalOrders = 0;
         private string data;
+        private const long quantity = 1;
 
         #endregion
 
@@ -95,7 +94,7 @@ namespace Client_Application
             }
             else
             {
-                data = "\n" + message.ToString();
+                data = message.ToString();
             }
 
         }
@@ -188,17 +187,17 @@ namespace Client_Application
         {
             try
             {
+                Signal signal = strategy.Test();
                 //Signal signal = strategy.BollingerBand(bid: bidPrices, ask: askPrices);
-                Signal signal = strategy.SimpleMovingAverage(bidTemp: bidPrices, askTemp: askPrices);
-                if (signal == Signal.Buy) { sendOrderRequest(createOrder(100, new Side(Side.BUY))); }
-                else if (signal == Signal.Sell) { sendOrderRequest(createOrder(100, new Side(Side.SELL))); }
+                //Signal signal = strategy.SimpleMovingAverage(bidTemp: bidPrices, askTemp: askPrices, period: 50);
+                if (signal == Signal.Buy) { sendOrderRequest(createOrder(quantity, new Side(Side.BUY))); }
+                else if (signal == Signal.Sell) { sendOrderRequest(createOrder(quantity, new Side(Side.SELL))); }
 
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
-                Console.WriteLine(e.StackTrace);
                 logger.Error(e.Message);
+                logger.Error(e.StackTrace);
             }
 
             return;
@@ -226,19 +225,19 @@ namespace Client_Application
         {
             if (order.Side.getValue() == '1')
             {
-                portfolioValue -= (order.Price.getValue() + brokerage*100);
+                portfolioValue -= (order.Price.getValue() + brokerage);
                 totalOrders += 1;
             }else if (order.Side.getValue() == '2')
             {
-                portfolioValue += (order.Price.getValue() - brokerage*100);
+                portfolioValue += (order.Price.getValue() - brokerage);
                 totalOrders -= 1;
             }
             if(totalOrders < 0)
             {
-                profit -= (Convert.ToDecimal(askPrices[askPrices.Count-1]) + brokerage) * totalOrders * 100; 
+                profit = portfolioValue + (Convert.ToDecimal(askPrices[askPrices.Count-1]) + brokerage) * totalOrders; 
             }else if (totalOrders > 0)
             {
-                profit += (Convert.ToDecimal(bidPrices[bidPrices.Count - 1]) - brokerage) * totalOrders * 100;
+                profit = portfolioValue + (Convert.ToDecimal(bidPrices[bidPrices.Count - 1]) - brokerage) * totalOrders;
             }
             
         }

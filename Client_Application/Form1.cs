@@ -3,6 +3,8 @@ using System.Windows.Forms;
 using System.Threading;
 using QuickFix;
 using NLog;
+using OxyPlot;
+using OxyPlot.Series;
 
 namespace Client_Application
 {
@@ -33,6 +35,7 @@ namespace Client_Application
                 initiator = new QuickFix.Transport.SocketInitiator(application, storeFactory, settings, logFactory);
                 timer1.Interval = 1000;
                 timer2.Interval = 10000;
+                timer3.Interval = 1000;
             }
             catch (Exception e)
             {
@@ -64,7 +67,7 @@ namespace Client_Application
             try
             {
                 timer1.Enabled = false;
-                timer2.Enabled = false;
+                timer3.Enabled = false;
                 if (initiator.IsLoggedOn && application.MarketDataGet)
                 {
                     application.CloseExcel();
@@ -84,6 +87,7 @@ namespace Client_Application
         {
             timer1.Enabled = true;
             timer2.Enabled = true;
+            timer3.Enabled = true;
             try
             {
                 if (initiator.IsLoggedOn && application.MarketDataGet)
@@ -114,7 +118,7 @@ namespace Client_Application
 
         private void timer2_Tick(object sender, EventArgs e)
         {
-            lProfit.Text = "Profit: $" + application.Profit;
+            lProfit.Text = "Profit: " + application.Profit.ToString("C");
             if (application.Profit < 0)
             {
                 lProfit.ForeColor = System.Drawing.Color.Red;
@@ -123,6 +127,23 @@ namespace Client_Application
             {
                 lProfit.ForeColor = System.Drawing.Color.Green;
             }
+        }
+
+        private void timer3_Tick(object sender, EventArgs e)
+        {
+            QuickFix.FIX44.ExecutionReport[] trades = new QuickFix.FIX44.ExecutionReport[application.trades.Count];
+            application.trades.CopyTo(trades);
+            int count = 0;
+            foreach (QuickFix.FIX44.ExecutionReport trade in trades)
+            {
+                dOrderTable.Rows.Add();
+                dOrderTable.Rows[count].Cells[0].Value = trade.Header.GetDateTime(52).ToString();
+                dOrderTable.Rows[count].Cells[1].Value = trade.Symbol.ToString();
+                dOrderTable.Rows[count].Cells[2].Value = trade.Price.getValue().ToString();
+                dOrderTable.Rows[count].Cells[3].Value = trade.CumQty.ToString();
+                dOrderTable.Rows[count++].Cells[4].Value = (trade.Side.getValue() == '1')? "Buy":"Sell";
+            }
+            if (count > 0) { dOrderTable.RowCount = count; }
         }
     }
 }

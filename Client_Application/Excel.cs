@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Excel = Microsoft.Office.Interop.Excel;
+using NLog;
 
 
 namespace Client_Application
@@ -14,13 +12,22 @@ namespace Client_Application
         private Excel.Workbook xlWorkBook;
         private Excel.Worksheet xlWorkSheet;
         private object misValue = System.Reflection.Missing.Value;
+        private static Logger logger = LogManager.GetCurrentClassLogger();
 
         public void OpenExcelSheet(string file,string sheet ="Sheet1")
         {
-            Console.WriteLine("Opening Excel File: " + file);
-            xlApp.Visible = true;
-            xlWorkBook = xlApp.Workbooks.Open(file);
-            xlWorkSheet = (Excel.Worksheet)xlWorkBook.Worksheets[sheet];
+            try
+            {
+                xlApp.Visible = true;
+                xlWorkBook = xlApp.Workbooks.Open(file);
+                xlWorkSheet = (Excel.Worksheet)xlWorkBook.Worksheets[sheet];
+            }
+            catch (Exception e)
+            {
+                logger.Error(e.Message);
+                logger.Error(e.StackTrace);
+            }
+
             return;
         }
 
@@ -35,18 +42,26 @@ namespace Client_Application
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
-                Console.WriteLine(e.StackTrace);
+                logger.Error(e.Message);
+                logger.Error(e.StackTrace);
             }
 
         }
 
         public void CloseExcelSheet()
         {
-            Console.WriteLine("Closing Excel File");
-            xlWorkBook.Save();
-            xlWorkBook.Close(true, misValue, misValue);
-            xlApp.Quit();
+            try
+            {
+                xlWorkBook.Save();
+                xlWorkBook.Close(true, misValue, misValue);
+                xlApp.Quit();
+            }
+            catch (Exception e)
+            {
+                logger.Error(e.Message);
+                logger.Error(e.StackTrace);
+            }
+
             return;
         }
 
