@@ -3,8 +3,8 @@ using System.Windows.Forms;
 using System.Threading;
 using QuickFix;
 using NLog;
-using OxyPlot;
-using OxyPlot.Series;
+using MathNet.Numerics.Statistics;
+using System.Collections.Generic;
 
 namespace Client_Application
 {
@@ -22,6 +22,8 @@ namespace Client_Application
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
         #endregion
+
+        #region Form
         public Form1()
         {
             InitializeComponent();
@@ -36,7 +38,15 @@ namespace Client_Application
                 timer1.Interval = 1000;
                 timer2.Interval = 500;
                 timer3.Interval = 1000;
-                var myModel = new PlotModel();
+                timer4.Interval = 500;
+                PricePlot.ChartAreas[0].AxisX.Minimum = 0;
+                PricePlot.ChartAreas[1].AxisX.Minimum = 0;
+                PricePlot.ChartAreas[2].AxisX.Minimum = 0;
+                PricePlot.ChartAreas[0].AxisY.Title = "Price";
+                PricePlot.ChartAreas[1].AxisY.Title = "Price On Average";
+                PricePlot.ChartAreas[1].AxisY.Title = "Price after removing Trend";
+                PricePlot.ChartAreas[1].Visible = false;
+                PricePlot.ChartAreas[2].Visible = false;
             }
             catch (Exception e)
             {
@@ -45,12 +55,17 @@ namespace Client_Application
             }
         }
 
+        #endregion
+
+        #region Buttons
+
         // Used for Getting Data from the Exchange Server and saving it to an excel file
         private void bStartApp_Click(object sender, EventArgs e)
         {
             try
             {
                 timer1.Enabled = true;
+                timer4.Enabled = true;
                 initiator.Start();
                 Thread.Sleep(1000);
                 application.StartExcel(dataFile);
@@ -69,6 +84,7 @@ namespace Client_Application
             {
                 timer1.Enabled = false;
                 timer3.Enabled = false;
+                timer4.Enabled = false;
                 if (initiator.IsLoggedOn && application.MarketDataGet)
                 {
                     application.CloseExcel();
@@ -89,6 +105,7 @@ namespace Client_Application
             timer1.Enabled = true;
             timer2.Enabled = true;
             timer3.Enabled = true;
+            timer4.Enabled = true;
             try
             {
                 if (initiator.IsLoggedOn && application.MarketDataGet)
@@ -109,6 +126,9 @@ namespace Client_Application
             
         }
 
+        #endregion
+
+        #region Timers
         private void timer1_Tick(object sender, EventArgs e)
         {
             tbDisplay.Text += application.Data;
@@ -146,5 +166,44 @@ namespace Client_Application
             }
             if (count > 0) { dOrderTable.RowCount = count; }
         }
+
+        private void timer4_Tick(object sender, EventArgs e)
+        {
+            try
+            {
+                int period = 50;int trendPeriod = 990; // Trend Period Came from Analysis of the Data
+                List<Double> price = new List<double>(application.AskPrices);
+                foreach (var series in PricePlot.Series){ series.Points.Clear(); }
+                for (int i = 0; i < price.Count; i++){ PricePlot.Series[0].Points.AddXY(i, price[i]); }
+                if (price.Count >= period)
+                {
+                    List<double> priceMa = application.getMovingAverage(period);
+                    for (int i = period; i < price.Count; i++) { PricePlot.Series[1].Points.AddXY(i, priceMa[i]); }
+                }
+                if (price.Count >= trendPeriod)
+                {
+                    PricePlot.ChartAreas[1].Visible = true;
+                    PricePlot.ChartAreas[2].Visible = true;
+                    List<double> trend = application.getMovingAverage(trendPeriod);
+                    for (int i = trendPeriod; i < price.Count; i++) { PricePlot.Series[2].Points.AddXY(i, trend[i]); }
+                    for (int i = trendPeriod; i < price.Count; i++) { PricePlot.Series[3].Points.AddXY(i, price[i]/trend[i]); }
+                    PricePlot.ChartAreas[1].AxisY.Minimum = trend.Minimum() - 1;
+                    PricePlot.ChartAreas[1].AxisY.Maximum = trend.Maximum() + 1;
+                    PricePlot.ChartAreas[2].AxisY.Minimum = -2;
+                    PricePlot.ChartAreas[2].AxisY.Maximum = 2;
+                }
+
+                PricePlot.ChartAreas[0].AxisY.Minimum = price.Minimum() - 1;
+                PricePlot.ChartAreas[0].AxisY.Maximum = price.Maximum() + 1;
+            }
+            catch (Exception error)
+            {
+                logger.Error(error.Message);
+                logger.Error(error.StackTrace);
+            }                 
+        }
+
+        #endregion
+
     }
 }

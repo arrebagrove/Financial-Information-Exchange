@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using QuickFix;
 using QuickFix.Fields;
+using MathNet.Numerics.Statistics;
 using NLog;
 
 namespace Client_Application
@@ -17,8 +18,8 @@ namespace Client_Application
         private Dictionary<string, string> marketData = new Dictionary<string, string>();
         public List<QuickFix.FIX44.ExecutionReport> trades = new List<QuickFix.FIX44.ExecutionReport>();
         private ExcelInsert excel = new ExcelInsert();
-        private static List<Double> bidPrices = new List<Double>();
-        private static List<Double> askPrices = new List<Double>();
+        private List<Double> bidPrices = new List<Double>();
+        private List<Double> askPrices = new List<Double>();
         private TradingStrategy strategy = new TradingStrategy();
         private Decimal profit = 0m;
         private Decimal portfolioValue = 0m;
@@ -63,6 +64,15 @@ namespace Client_Application
             {
                 data = value;
             }
+        }
+
+        public List<double> AskPrices
+        {
+            get
+            {
+                return askPrices;
+            }
+
         }
 
         public Client(bool dataGet)
@@ -188,7 +198,7 @@ namespace Client_Application
         {
             try
             {
-                Signal signal1 = strategy.BollingerBand(bid: bidPrices, ask: askPrices);
+                Signal signal1 = strategy.BollingerBand(bidTemp: bidPrices, askTemp: askPrices);
                 Signal signal2 = strategy.SimpleMovingAverage(bidTemp: bidPrices, askTemp: askPrices, period: 50);
                 Signal signal3 = strategy.Decomposition(bidTemp: bidPrices, askTemp: askPrices);
                 Signal signal4 = strategy.TwoMovingAverage(bidPrices,askPrices);
@@ -260,6 +270,16 @@ namespace Client_Application
             {
                 profit = portfolioValue + (Convert.ToDecimal(bidPrices[bidPrices.Count - 1]) - brokerage) * totalOrders;
             }
+        }
+
+        public List<Double> getMovingAverage(int period)
+        {
+            List<Double> price = new List<double>();
+            foreach(Double val in askPrices.MovingAverage(period))
+            {
+                price.Add(val);
+            }
+            return price;
         }
 
         #endregion

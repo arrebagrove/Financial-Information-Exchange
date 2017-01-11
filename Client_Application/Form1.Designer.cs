@@ -29,9 +29,16 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea6 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend6 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series6 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend3 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series4 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
             this.timer3 = new System.Windows.Forms.Timer(this.components);
@@ -49,17 +56,17 @@
             this.tbDisplay = new System.Windows.Forms.TextBox();
             this.bStartApp = new System.Windows.Forms.Button();
             this.tabControl1 = new System.Windows.Forms.TabControl();
-            this.bindingSource1 = new System.Windows.Forms.BindingSource(this.components);
             this.tabPage3 = new System.Windows.Forms.TabPage();
-            this.chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            this.PricePlot = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            this.bindingSource1 = new System.Windows.Forms.BindingSource(this.components);
             this.timer4 = new System.Windows.Forms.Timer(this.components);
             this.tabPage2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dOrderTable)).BeginInit();
             this.tabPage1.SuspendLayout();
             this.tabControl1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).BeginInit();
             this.tabPage3.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.PricePlot)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).BeginInit();
             this.SuspendLayout();
             // 
             // timer1
@@ -153,6 +160,9 @@
             // 
             // lProfit
             // 
+            this.lProfit.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.lProfit.AutoSize = true;
             this.lProfit.Font = new System.Drawing.Font("Microsoft Sans Serif", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lProfit.Location = new System.Drawing.Point(819, 476);
@@ -163,11 +173,14 @@
             // 
             // bStop
             // 
+            this.bStop.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.bStop.BackColor = System.Drawing.Color.Gainsboro;
             this.bStop.Font = new System.Drawing.Font("Times New Roman", 20F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.bStop.Location = new System.Drawing.Point(819, 272);
             this.bStop.Name = "bStop";
-            this.bStop.Size = new System.Drawing.Size(251, 128);
+            this.bStop.Size = new System.Drawing.Size(288, 128);
             this.bStop.TabIndex = 1;
             this.bStop.Text = "STOP";
             this.bStop.UseVisualStyleBackColor = false;
@@ -175,11 +188,14 @@
             // 
             // bTradeAuto
             // 
+            this.bTradeAuto.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.bTradeAuto.BackColor = System.Drawing.Color.Gainsboro;
             this.bTradeAuto.Font = new System.Drawing.Font("Times New Roman", 20F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.bTradeAuto.Location = new System.Drawing.Point(819, 138);
             this.bTradeAuto.Name = "bTradeAuto";
-            this.bTradeAuto.Size = new System.Drawing.Size(251, 128);
+            this.bTradeAuto.Size = new System.Drawing.Size(288, 128);
             this.bTradeAuto.TabIndex = 3;
             this.bTradeAuto.Text = "TRADE ";
             this.bTradeAuto.UseVisualStyleBackColor = false;
@@ -187,6 +203,9 @@
             // 
             // tbDisplay
             // 
+            this.tbDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.tbDisplay.BackColor = System.Drawing.SystemColors.InfoText;
             this.tbDisplay.Font = new System.Drawing.Font("Times New Roman", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tbDisplay.ForeColor = System.Drawing.Color.Gold;
@@ -198,11 +217,14 @@
             // 
             // bStartApp
             // 
+            this.bStartApp.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.bStartApp.BackColor = System.Drawing.Color.Gainsboro;
             this.bStartApp.Font = new System.Drawing.Font("Times New Roman", 20F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.bStartApp.Location = new System.Drawing.Point(819, 6);
             this.bStartApp.Name = "bStartApp";
-            this.bStartApp.Size = new System.Drawing.Size(251, 126);
+            this.bStartApp.Size = new System.Drawing.Size(288, 126);
             this.bStartApp.TabIndex = 0;
             this.bStartApp.Text = "GET DATA";
             this.bStartApp.UseVisualStyleBackColor = false;
@@ -210,6 +232,9 @@
             // 
             // tabControl1
             // 
+            this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage2);
             this.tabControl1.Controls.Add(this.tabPage3);
@@ -222,7 +247,7 @@
             // tabPage3
             // 
             this.tabPage3.BackColor = System.Drawing.Color.LightGray;
-            this.tabPage3.Controls.Add(this.chart1);
+            this.tabPage3.Controls.Add(this.PricePlot);
             this.tabPage3.Location = new System.Drawing.Point(4, 29);
             this.tabPage3.Name = "tabPage3";
             this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
@@ -230,23 +255,71 @@
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "Chart";
             // 
-            // chart1
+            // PricePlot
             // 
-            chartArea6.Name = "ChartArea1";
-            this.chart1.ChartAreas.Add(chartArea6);
-            legend6.Name = "Legend1";
-            this.chart1.Legends.Add(legend6);
-            this.chart1.Location = new System.Drawing.Point(6, 6);
-            this.chart1.Name = "chart1";
-            series6.ChartArea = "ChartArea1";
-            series6.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series6.Legend = "Legend1";
-            series6.Name = "Stock Price (MFM)";
-            series6.YValuesPerPoint = 4;
-            this.chart1.Series.Add(series6);
-            this.chart1.Size = new System.Drawing.Size(1101, 317);
-            this.chart1.TabIndex = 0;
-            this.chart1.Text = "Price";
+            this.PricePlot.BackColor = System.Drawing.Color.DimGray;
+            this.PricePlot.BackGradientStyle = System.Windows.Forms.DataVisualization.Charting.GradientStyle.DiagonalLeft;
+            chartArea1.BackColor = System.Drawing.Color.Snow;
+            chartArea1.Name = "ChartArea1";
+            chartArea2.AlignWithChartArea = "ChartArea1";
+            chartArea2.BackColor = System.Drawing.Color.Snow;
+            chartArea2.Name = "ChartArea2";
+            chartArea3.AlignWithChartArea = "ChartArea2";
+            chartArea3.BackColor = System.Drawing.Color.Snow;
+            chartArea3.Name = "ChartArea3";
+            this.PricePlot.ChartAreas.Add(chartArea1);
+            this.PricePlot.ChartAreas.Add(chartArea2);
+            this.PricePlot.ChartAreas.Add(chartArea3);
+            this.PricePlot.Dock = System.Windows.Forms.DockStyle.Fill;
+            legend1.BackColor = System.Drawing.Color.Snow;
+            legend1.DockedToChartArea = "ChartArea1";
+            legend1.MaximumAutoSize = 20F;
+            legend1.Name = "Legend1";
+            legend2.BackColor = System.Drawing.Color.Snow;
+            legend2.DockedToChartArea = "ChartArea2";
+            legend2.Name = "Legend2";
+            legend3.BackColor = System.Drawing.Color.Snow;
+            legend3.DockedToChartArea = "ChartArea3";
+            legend3.Name = "Legend3";
+            this.PricePlot.Legends.Add(legend1);
+            this.PricePlot.Legends.Add(legend2);
+            this.PricePlot.Legends.Add(legend3);
+            this.PricePlot.Location = new System.Drawing.Point(3, 3);
+            this.PricePlot.Name = "PricePlot";
+            series1.BackGradientStyle = System.Windows.Forms.DataVisualization.Charting.GradientStyle.LeftRight;
+            series1.BackImageTransparentColor = System.Drawing.Color.White;
+            series1.ChartArea = "ChartArea1";
+            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series1.Color = System.Drawing.Color.Blue;
+            series1.Legend = "Legend1";
+            series1.Name = "MFM";
+            series1.YValuesPerPoint = 4;
+            series2.ChartArea = "ChartArea1";
+            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Spline;
+            series2.Color = System.Drawing.Color.DarkRed;
+            series2.Legend = "Legend1";
+            series2.Name = "50 Days Moving Average";
+            series3.ChartArea = "ChartArea2";
+            series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Spline;
+            series3.Color = System.Drawing.Color.Indigo;
+            series3.Legend = "Legend2";
+            series3.Name = "Trend";
+            series4.ChartArea = "ChartArea3";
+            series4.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Spline;
+            series4.Color = System.Drawing.Color.Magenta;
+            series4.Legend = "Legend3";
+            series4.Name = "Signal";
+            this.PricePlot.Series.Add(series1);
+            this.PricePlot.Series.Add(series2);
+            this.PricePlot.Series.Add(series3);
+            this.PricePlot.Series.Add(series4);
+            this.PricePlot.Size = new System.Drawing.Size(1107, 617);
+            this.PricePlot.TabIndex = 0;
+            this.PricePlot.Text = "Price";
+            // 
+            // timer4
+            // 
+            this.timer4.Tick += new System.EventHandler(this.timer4_Tick);
             // 
             // Form1
             // 
@@ -261,9 +334,9 @@
             this.tabPage1.ResumeLayout(false);
             this.tabPage1.PerformLayout();
             this.tabControl1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).EndInit();
             this.tabPage3.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.chart1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.PricePlot)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -288,7 +361,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn Side;
         private System.Windows.Forms.BindingSource bindingSource1;
         private System.Windows.Forms.TabPage tabPage3;
-        private System.Windows.Forms.DataVisualization.Charting.Chart chart1;
+        private System.Windows.Forms.DataVisualization.Charting.Chart PricePlot;
         private System.Windows.Forms.Timer timer4;
     }
 }
