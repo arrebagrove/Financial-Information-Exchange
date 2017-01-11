@@ -25,7 +25,8 @@ namespace Client_Application
         private const Decimal brokerage = 0.005m;
         private long totalOrders = 0;
         private string data;
-        private const long quantity = 1;
+        private long totalQuantityPortfolio = 0;
+        private long shortLimit = -50000;
 
         #endregion
 
@@ -96,6 +97,7 @@ namespace Client_Application
             {
                 data = message.ToString();
             }
+            viewProfit();
 
         }
 
@@ -182,16 +184,23 @@ namespace Client_Application
             excel.CloseExcelSheet();
         }
 
-
         public void TradeAutomatically()
         {
             try
             {
-                Signal signal = strategy.Test();
-                //Signal signal = strategy.BollingerBand(bid: bidPrices, ask: askPrices);
-                //Signal signal = strategy.SimpleMovingAverage(bidTemp: bidPrices, askTemp: askPrices, period: 50);
-                if (signal == Signal.Buy) { sendOrderRequest(createOrder(quantity, new Side(Side.BUY))); }
-                else if (signal == Signal.Sell) { sendOrderRequest(createOrder(quantity, new Side(Side.SELL))); }
+                Signal signal1 = strategy.BollingerBand(bid: bidPrices, ask: askPrices);
+                Signal signal2 = strategy.SimpleMovingAverage(bidTemp: bidPrices, askTemp: askPrices, period: 50);
+                Signal signal3 = strategy.Decomposition(bidTemp: bidPrices, askTemp: askPrices);
+                Signal signal4 = strategy.TwoMovingAverage(bidPrices,askPrices);
+                long quantity = (long)((int)signal1 + 0.5*(int)signal2 + 5*(int)signal3 + 2*(int)signal4)*1000;
+                totalQuantityPortfolio += quantity;
+                if (totalQuantityPortfolio < shortLimit) {
+                    sendOrderRequest(createOrder(totalQuantityPortfolio - shortLimit, new Side(Side.BUY)));
+                }
+                else {
+                    if (quantity > 0) { sendOrderRequest(createOrder(quantity, new Side(Side.BUY))); }
+                    else if (quantity < 0) { sendOrderRequest(createOrder(quantity, new Side(Side.SELL))); }
+                }
 
             }
             catch (Exception e)
@@ -225,12 +234,12 @@ namespace Client_Application
         {
             if (order.Side.getValue() == '1')
             {
-                portfolioValue -= (order.Price.getValue() + brokerage);
-                totalOrders += 1;
+                portfolioValue -= (order.Price.getValue() + brokerage)* order.CumQty.getValue();
+                totalOrders += (long)order.CumQty.getValue();
             }else if (order.Side.getValue() == '2')
             {
-                portfolioValue += (order.Price.getValue() - brokerage);
-                totalOrders -= 1;
+                portfolioValue += (order.Price.getValue() - brokerage)* order.CumQty.getValue();
+                totalOrders -= (long)order.CumQty.getValue();
             }
             if(totalOrders < 0)
             {
@@ -239,7 +248,18 @@ namespace Client_Application
             {
                 profit = portfolioValue + (Convert.ToDecimal(bidPrices[bidPrices.Count - 1]) - brokerage) * totalOrders;
             }
-            
+        }
+
+        public void viewProfit()
+        {
+            if (totalOrders < 0)
+            {
+                profit = portfolioValue + (Convert.ToDecimal(askPrices[askPrices.Count - 1]) + brokerage) * totalOrders;
+            }
+            else if (totalOrders > 0)
+            {
+                profit = portfolioValue + (Convert.ToDecimal(bidPrices[bidPrices.Count - 1]) - brokerage) * totalOrders;
+            }
         }
 
         #endregion

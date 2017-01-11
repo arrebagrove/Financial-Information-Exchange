@@ -34,8 +34,9 @@ namespace Client_Application
                 logFactory = new ScreenLogFactory(settings);
                 initiator = new QuickFix.Transport.SocketInitiator(application, storeFactory, settings, logFactory);
                 timer1.Interval = 1000;
-                timer2.Interval = 10000;
+                timer2.Interval = 500;
                 timer3.Interval = 1000;
+                var myModel = new PlotModel();
             }
             catch (Exception e)
             {
