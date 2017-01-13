@@ -20,6 +20,7 @@ namespace Client_Application
         private ILogFactory logFactory;
         private QuickFix.Transport.SocketInitiator initiator;
         private static Logger logger = LogManager.GetCurrentClassLogger();
+        private string startTime = DateTime.Now.ToString("h:mm:ss tt");
 
         #endregion
 
@@ -40,13 +41,21 @@ namespace Client_Application
                 timer3.Interval = 1000;
                 timer4.Interval = 500;
                 PricePlot.ChartAreas[0].AxisX.Minimum = 0;
+                cBuyingSelling.ChartAreas[0].AxisX.Minimum = 0;
                 PricePlot.ChartAreas[1].AxisX.Minimum = 0;
                 PricePlot.ChartAreas[2].AxisX.Minimum = 0;
                 PricePlot.ChartAreas[0].AxisY.Title = "Price";
+                cBuyingSelling.ChartAreas[0].AxisY.Title = "Price";
+                cBuyingSelling.ChartAreas[0].AxisX.Title = "Time";
                 PricePlot.ChartAreas[1].AxisY.Title = "Price On Average";
                 PricePlot.ChartAreas[1].AxisY.Title = "Price after removing Trend";
                 PricePlot.ChartAreas[1].Visible = false;
                 PricePlot.ChartAreas[2].Visible = false;
+                ltime.ForeColor = System.Drawing.Color.Blue;
+                runningTIme.ForeColor = System.Drawing.Color.Blue;
+                runningTIme.Text = "Running Time: 0 Second";
+                String currentTime = DateTime.Now.ToString("h:mm:ss tt");
+                ltime.Text = "Current Time: " + currentTime;
             }
             catch (Exception e)
             {
@@ -68,7 +77,7 @@ namespace Client_Application
                 timer4.Enabled = true;
                 initiator.Start();
                 Thread.Sleep(1000);
-                application.StartExcel(dataFile);
+                if (initiator.IsLoggedOn) { application.StartExcel(dataFile); }
             }
             catch (Exception error)
             {
@@ -85,7 +94,7 @@ namespace Client_Application
                 timer1.Enabled = false;
                 timer3.Enabled = false;
                 timer4.Enabled = false;
-                if (initiator.IsLoggedOn && application.MarketDataGet)
+                if (initiator.IsLoggedOn)
                 {
                     application.CloseExcel();
                 }
@@ -117,6 +126,7 @@ namespace Client_Application
                 application.MarketDataGet = false;
                 initiator.Start();
                 Thread.Sleep(1000);
+                if (initiator.IsLoggedOn) { application.StartExcel(dataFile); }
             }
             catch (Exception error)
             {
@@ -134,12 +144,15 @@ namespace Client_Application
             tbDisplay.Text += application.Data;
             tbDisplay.SelectionStart = tbDisplay.Text.Length;
             tbDisplay.ScrollToCaret();
-
+            String currentTime = DateTime.Now.ToString("h:mm:ss tt");
+            ltime.Text = "Current Time: " + currentTime;
+            runningTIme.Text = "Running Time: " + DateTime.Parse(currentTime).Subtract(DateTime.Parse(startTime));
         }
 
         private void timer2_Tick(object sender, EventArgs e)
         {
             lProfit.Text = "Profit: " + application.Profit.ToString("C");
+            lPosition.Text = "Position: " + application.TotalQuantityPortfolio;
             if (application.Profit < 0)
             {
                 lProfit.ForeColor = System.Drawing.Color.Red;
@@ -148,6 +161,7 @@ namespace Client_Application
             {
                 lProfit.ForeColor = System.Drawing.Color.Green;
             }
+
         }
 
         private void timer3_Tick(object sender, EventArgs e)
@@ -161,7 +175,7 @@ namespace Client_Application
                 dOrderTable.Rows[count].Cells[0].Value = trade.Header.GetDateTime(52).ToString();
                 dOrderTable.Rows[count].Cells[1].Value = trade.Symbol.ToString();
                 dOrderTable.Rows[count].Cells[2].Value = trade.Price.getValue().ToString();
-                dOrderTable.Rows[count].Cells[3].Value = trade.CumQty.ToString();
+                dOrderTable.Rows[count].Cells[3].Value = trade.CumQty.getValue().ToString();
                 dOrderTable.Rows[count++].Cells[4].Value = (trade.Side.getValue() == '1')? "Buy":"Sell";
             }
             if (count > 0) { dOrderTable.RowCount = count; }
@@ -171,30 +185,49 @@ namespace Client_Application
         {
             try
             {
-                int period = 50;int trendPeriod = 990; // Trend Period Came from Analysis of the Data
+                int shortPeriod = 20;int trendPeriod = 990; // Trend Period Came from Analysis of the Data
+                int longPeriod = 200;
                 List<Double> price = new List<double>(application.AskPrices);
+                Dictionary<int, Double> buyingPoints = new Dictionary<int, Double>(application.BuyingPrices);
+                Dictionary<int, Double> sellingPoints = new Dictionary<int, Double>(application.SellingPrices);
                 foreach (var series in PricePlot.Series){ series.Points.Clear(); }
+                foreach (var series in cBuyingSelling.Series) { series.Points.Clear(); }
                 for (int i = 0; i < price.Count; i++){ PricePlot.Series[0].Points.AddXY(i, price[i]); }
-                if (price.Count >= period)
+                for (int i = 0; i < price.Count; i++) { cBuyingSelling.Series[0].Points.AddXY(i, price[i]); }
+                foreach (int key in buyingPoints.Keys) { cBuyingSelling.Series[3].Points.AddXY(key-1, buyingPoints[key]); }
+                foreach (int key in sellingPoints.Keys) { cBuyingSelling.Series[4].Points.AddXY(key-1, sellingPoints[key]); }
+                if (price.Count > 500)
                 {
-                    List<double> priceMa = application.getMovingAverage(period);
-                    for (int i = period; i < price.Count; i++) { PricePlot.Series[1].Points.AddXY(i, priceMa[i]); }
+                    cBuyingSelling.ChartAreas[0].AxisX.Minimum = price.Count - 500;
+                }
+                if (price.Count >= shortPeriod)
+                {
+                    List<double> priceMa = application.getMovingAverage(shortPeriod);
+                    for (int i = shortPeriod; i < price.Count; i++) { cBuyingSelling.Series[1].Points.AddXY(i, priceMa[i]); }
+                }
+                if (price.Count >= longPeriod)
+                {
+                    List<double> priceMa = application.getMovingAverage(longPeriod);
+                    for (int i = longPeriod; i < price.Count; i++) { cBuyingSelling.Series[2].Points.AddXY(i, priceMa[i]); }
                 }
                 if (price.Count >= trendPeriod)
                 {
                     PricePlot.ChartAreas[1].Visible = true;
                     PricePlot.ChartAreas[2].Visible = true;
                     List<double> trend = application.getMovingAverage(trendPeriod);
-                    for (int i = trendPeriod; i < price.Count; i++) { PricePlot.Series[2].Points.AddXY(i, trend[i]); }
-                    for (int i = trendPeriod; i < price.Count; i++) { PricePlot.Series[3].Points.AddXY(i, price[i]/trend[i]); }
+                    for (int i = trendPeriod; i < price.Count; i++) { PricePlot.Series[1].Points.AddXY(i, trend[i]); }
+                    for (int i = trendPeriod; i < price.Count; i++) { PricePlot.Series[2].Points.AddXY(i, price[i]/trend[i]); }
                     PricePlot.ChartAreas[1].AxisY.Minimum = trend.Minimum() - 1;
                     PricePlot.ChartAreas[1].AxisY.Maximum = trend.Maximum() + 1;
-                    PricePlot.ChartAreas[2].AxisY.Minimum = -2;
-                    PricePlot.ChartAreas[2].AxisY.Maximum = 2;
+                    PricePlot.ChartAreas[2].AxisY.Minimum = 0.95;
+                    PricePlot.ChartAreas[2].AxisY.Maximum = 1.065;
                 }
 
                 PricePlot.ChartAreas[0].AxisY.Minimum = price.Minimum() - 1;
+                cBuyingSelling.ChartAreas[0].AxisY.Minimum = price.Minimum() - 1;
                 PricePlot.ChartAreas[0].AxisY.Maximum = price.Maximum() + 1;
+                cBuyingSelling.ChartAreas[0].AxisY.Maximum = price.Maximum() + 1;
+
             }
             catch (Exception error)
             {
@@ -202,6 +235,7 @@ namespace Client_Application
                 logger.Error(error.StackTrace);
             }                 
         }
+
 
         #endregion
 

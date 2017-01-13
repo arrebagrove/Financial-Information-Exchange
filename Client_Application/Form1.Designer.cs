@@ -29,16 +29,22 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
             System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
             System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea4 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
             System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
             System.Windows.Forms.DataVisualization.Charting.Legend legend3 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend4 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series6 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series7 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series8 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
             System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
             System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
             System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
             System.Windows.Forms.DataVisualization.Charting.Series series4 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series5 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
             this.timer3 = new System.Windows.Forms.Timer(this.components);
@@ -60,6 +66,11 @@
             this.PricePlot = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.bindingSource1 = new System.Windows.Forms.BindingSource(this.components);
             this.timer4 = new System.Windows.Forms.Timer(this.components);
+            this.ltime = new System.Windows.Forms.Label();
+            this.runningTIme = new System.Windows.Forms.Label();
+            this.lPosition = new System.Windows.Forms.Label();
+            this.tabPage4 = new System.Windows.Forms.TabPage();
+            this.cBuyingSelling = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.tabPage2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dOrderTable)).BeginInit();
             this.tabPage1.SuspendLayout();
@@ -67,6 +78,8 @@
             this.tabPage3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.PricePlot)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).BeginInit();
+            this.tabPage4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.cBuyingSelling)).BeginInit();
             this.SuspendLayout();
             // 
             // timer1
@@ -90,10 +103,13 @@
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
             this.tabPage2.Size = new System.Drawing.Size(1113, 623);
             this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "Orders";
+            this.tabPage2.Text = "Order Book";
             // 
             // dOrderTable
             // 
+            this.dOrderTable.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.dOrderTable.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dOrderTable.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.TimeStamp,
@@ -101,7 +117,6 @@
             this.Price,
             this.Quantity,
             this.Side});
-            this.dOrderTable.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dOrderTable.Location = new System.Drawing.Point(3, 3);
             this.dOrderTable.Name = "dOrderTable";
             this.dOrderTable.RowTemplate.Height = 28;
@@ -146,6 +161,9 @@
             // tabPage1
             // 
             this.tabPage1.BackColor = System.Drawing.Color.Silver;
+            this.tabPage1.Controls.Add(this.lPosition);
+            this.tabPage1.Controls.Add(this.runningTIme);
+            this.tabPage1.Controls.Add(this.ltime);
             this.tabPage1.Controls.Add(this.lProfit);
             this.tabPage1.Controls.Add(this.bStop);
             this.tabPage1.Controls.Add(this.bTradeAuto);
@@ -164,10 +182,10 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lProfit.AutoSize = true;
-            this.lProfit.Font = new System.Drawing.Font("Microsoft Sans Serif", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lProfit.Location = new System.Drawing.Point(819, 476);
+            this.lProfit.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lProfit.Location = new System.Drawing.Point(819, 427);
             this.lProfit.Name = "lProfit";
-            this.lProfit.Size = new System.Drawing.Size(161, 40);
+            this.lProfit.Size = new System.Drawing.Size(135, 36);
             this.lProfit.TabIndex = 5;
             this.lProfit.Text = "Profit: $0";
             // 
@@ -217,9 +235,6 @@
             // 
             // bStartApp
             // 
-            this.bStartApp.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
             this.bStartApp.BackColor = System.Drawing.Color.Gainsboro;
             this.bStartApp.Font = new System.Drawing.Font("Times New Roman", 20F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.bStartApp.Location = new System.Drawing.Point(819, 6);
@@ -237,6 +252,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage2);
+            this.tabControl1.Controls.Add(this.tabPage4);
             this.tabControl1.Controls.Add(this.tabPage3);
             this.tabControl1.Location = new System.Drawing.Point(13, 13);
             this.tabControl1.Name = "tabControl1";
@@ -253,66 +269,60 @@
             this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
             this.tabPage3.Size = new System.Drawing.Size(1113, 623);
             this.tabPage3.TabIndex = 2;
-            this.tabPage3.Text = "Chart";
+            this.tabPage3.Text = "Decomposition";
             // 
             // PricePlot
             // 
             this.PricePlot.BackColor = System.Drawing.Color.DimGray;
             this.PricePlot.BackGradientStyle = System.Windows.Forms.DataVisualization.Charting.GradientStyle.DiagonalLeft;
-            chartArea1.BackColor = System.Drawing.Color.Snow;
-            chartArea1.Name = "ChartArea1";
-            chartArea2.AlignWithChartArea = "ChartArea1";
             chartArea2.BackColor = System.Drawing.Color.Snow;
-            chartArea2.Name = "ChartArea2";
-            chartArea3.AlignWithChartArea = "ChartArea2";
+            chartArea2.Name = "ChartArea1";
+            chartArea3.AlignWithChartArea = "ChartArea1";
             chartArea3.BackColor = System.Drawing.Color.Snow;
-            chartArea3.Name = "ChartArea3";
-            this.PricePlot.ChartAreas.Add(chartArea1);
+            chartArea3.Name = "ChartArea2";
+            chartArea4.AlignWithChartArea = "ChartArea2";
+            chartArea4.BackColor = System.Drawing.Color.Snow;
+            chartArea4.Name = "ChartArea3";
             this.PricePlot.ChartAreas.Add(chartArea2);
             this.PricePlot.ChartAreas.Add(chartArea3);
+            this.PricePlot.ChartAreas.Add(chartArea4);
             this.PricePlot.Dock = System.Windows.Forms.DockStyle.Fill;
-            legend1.BackColor = System.Drawing.Color.Snow;
-            legend1.DockedToChartArea = "ChartArea1";
-            legend1.MaximumAutoSize = 20F;
-            legend1.Name = "Legend1";
             legend2.BackColor = System.Drawing.Color.Snow;
-            legend2.DockedToChartArea = "ChartArea2";
-            legend2.Name = "Legend2";
+            legend2.DockedToChartArea = "ChartArea1";
+            legend2.MaximumAutoSize = 20F;
+            legend2.Name = "Legend1";
             legend3.BackColor = System.Drawing.Color.Snow;
-            legend3.DockedToChartArea = "ChartArea3";
-            legend3.Name = "Legend3";
-            this.PricePlot.Legends.Add(legend1);
+            legend3.DockedToChartArea = "ChartArea2";
+            legend3.Name = "Legend2";
+            legend4.BackColor = System.Drawing.Color.Snow;
+            legend4.DockedToChartArea = "ChartArea3";
+            legend4.Name = "Legend3";
             this.PricePlot.Legends.Add(legend2);
             this.PricePlot.Legends.Add(legend3);
+            this.PricePlot.Legends.Add(legend4);
             this.PricePlot.Location = new System.Drawing.Point(3, 3);
             this.PricePlot.Name = "PricePlot";
-            series1.BackGradientStyle = System.Windows.Forms.DataVisualization.Charting.GradientStyle.LeftRight;
-            series1.BackImageTransparentColor = System.Drawing.Color.White;
-            series1.ChartArea = "ChartArea1";
-            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series1.Color = System.Drawing.Color.Blue;
-            series1.Legend = "Legend1";
-            series1.Name = "MFM";
-            series1.YValuesPerPoint = 4;
-            series2.ChartArea = "ChartArea1";
-            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Spline;
-            series2.Color = System.Drawing.Color.DarkRed;
-            series2.Legend = "Legend1";
-            series2.Name = "50 Days Moving Average";
-            series3.ChartArea = "ChartArea2";
-            series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Spline;
-            series3.Color = System.Drawing.Color.Indigo;
-            series3.Legend = "Legend2";
-            series3.Name = "Trend";
-            series4.ChartArea = "ChartArea3";
-            series4.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Spline;
-            series4.Color = System.Drawing.Color.Magenta;
-            series4.Legend = "Legend3";
-            series4.Name = "Signal";
-            this.PricePlot.Series.Add(series1);
-            this.PricePlot.Series.Add(series2);
-            this.PricePlot.Series.Add(series3);
-            this.PricePlot.Series.Add(series4);
+            series6.BackGradientStyle = System.Windows.Forms.DataVisualization.Charting.GradientStyle.LeftRight;
+            series6.BackImageTransparentColor = System.Drawing.Color.White;
+            series6.ChartArea = "ChartArea1";
+            series6.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series6.Color = System.Drawing.Color.Blue;
+            series6.Legend = "Legend1";
+            series6.Name = "MFM";
+            series6.YValuesPerPoint = 4;
+            series7.ChartArea = "ChartArea2";
+            series7.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Spline;
+            series7.Color = System.Drawing.Color.Indigo;
+            series7.Legend = "Legend2";
+            series7.Name = "Trend";
+            series8.ChartArea = "ChartArea3";
+            series8.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Spline;
+            series8.Color = System.Drawing.Color.Magenta;
+            series8.Legend = "Legend3";
+            series8.Name = "Signal";
+            this.PricePlot.Series.Add(series6);
+            this.PricePlot.Series.Add(series7);
+            this.PricePlot.Series.Add(series8);
             this.PricePlot.Size = new System.Drawing.Size(1107, 617);
             this.PricePlot.TabIndex = 0;
             this.PricePlot.Text = "Price";
@@ -320,6 +330,98 @@
             // timer4
             // 
             this.timer4.Tick += new System.EventHandler(this.timer4_Tick);
+            // 
+            // ltime
+            // 
+            this.ltime.AutoSize = true;
+            this.ltime.Font = new System.Drawing.Font("Times New Roman", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ltime.Location = new System.Drawing.Point(821, 574);
+            this.ltime.Name = "ltime";
+            this.ltime.Size = new System.Drawing.Size(162, 26);
+            this.ltime.TabIndex = 6;
+            this.ltime.Text = "Current Time:";
+            // 
+            // runningTIme
+            // 
+            this.runningTIme.AutoSize = true;
+            this.runningTIme.Font = new System.Drawing.Font("Times New Roman", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.runningTIme.Location = new System.Drawing.Point(821, 532);
+            this.runningTIme.Name = "runningTIme";
+            this.runningTIme.Size = new System.Drawing.Size(172, 26);
+            this.runningTIme.TabIndex = 7;
+            this.runningTIme.Text = "Running Time: ";
+            // 
+            // lPosition
+            // 
+            this.lPosition.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lPosition.AutoSize = true;
+            this.lPosition.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lPosition.Location = new System.Drawing.Point(819, 476);
+            this.lPosition.Name = "lPosition";
+            this.lPosition.Size = new System.Drawing.Size(156, 36);
+            this.lPosition.TabIndex = 8;
+            this.lPosition.Text = "Position: 0";
+            // 
+            // tabPage4
+            // 
+            this.tabPage4.BackColor = System.Drawing.Color.Silver;
+            this.tabPage4.Controls.Add(this.cBuyingSelling);
+            this.tabPage4.Location = new System.Drawing.Point(4, 29);
+            this.tabPage4.Name = "tabPage4";
+            this.tabPage4.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage4.Size = new System.Drawing.Size(1113, 623);
+            this.tabPage4.TabIndex = 3;
+            this.tabPage4.Text = "Chart";
+            // 
+            // cBuyingSelling
+            // 
+            this.cBuyingSelling.BackColor = System.Drawing.Color.WhiteSmoke;
+            this.cBuyingSelling.BorderlineColor = System.Drawing.Color.Silver;
+            chartArea1.BackColor = System.Drawing.Color.WhiteSmoke;
+            chartArea1.Name = "ChartArea1";
+            this.cBuyingSelling.ChartAreas.Add(chartArea1);
+            this.cBuyingSelling.Dock = System.Windows.Forms.DockStyle.Fill;
+            legend1.DockedToChartArea = "ChartArea1";
+            legend1.Name = "Legend1";
+            this.cBuyingSelling.Legends.Add(legend1);
+            this.cBuyingSelling.Location = new System.Drawing.Point(3, 3);
+            this.cBuyingSelling.Name = "cBuyingSelling";
+            series1.ChartArea = "ChartArea1";
+            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series1.Color = System.Drawing.Color.Blue;
+            series1.Legend = "Legend1";
+            series1.Name = "MFM";
+            series2.ChartArea = "ChartArea1";
+            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Spline;
+            series2.Color = System.Drawing.Color.DarkViolet;
+            series2.Legend = "Legend1";
+            series2.Name = "60 Tick Moving Average";
+            series3.ChartArea = "ChartArea1";
+            series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Spline;
+            series3.Color = System.Drawing.Color.Gold;
+            series3.Legend = "Legend1";
+            series3.Name = "200 Tick Moving Average";
+            series4.ChartArea = "ChartArea1";
+            series4.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastPoint;
+            series4.Color = System.Drawing.Color.Green;
+            series4.Legend = "Legend1";
+            series4.Name = "Buying Point";
+            series4.YValuesPerPoint = 2;
+            series5.ChartArea = "ChartArea1";
+            series5.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Point;
+            series5.Color = System.Drawing.Color.Red;
+            series5.Legend = "Legend1";
+            series5.Name = "Selling Points";
+            this.cBuyingSelling.Series.Add(series1);
+            this.cBuyingSelling.Series.Add(series2);
+            this.cBuyingSelling.Series.Add(series3);
+            this.cBuyingSelling.Series.Add(series4);
+            this.cBuyingSelling.Series.Add(series5);
+            this.cBuyingSelling.Size = new System.Drawing.Size(1107, 617);
+            this.cBuyingSelling.TabIndex = 0;
+            this.cBuyingSelling.Text = "chart1";
             // 
             // Form1
             // 
@@ -337,6 +439,8 @@
             this.tabPage3.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.PricePlot)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).EndInit();
+            this.tabPage4.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.cBuyingSelling)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -363,6 +467,11 @@
         private System.Windows.Forms.TabPage tabPage3;
         private System.Windows.Forms.DataVisualization.Charting.Chart PricePlot;
         private System.Windows.Forms.Timer timer4;
+        private System.Windows.Forms.Label ltime;
+        private System.Windows.Forms.Label runningTIme;
+        private System.Windows.Forms.Label lPosition;
+        private System.Windows.Forms.TabPage tabPage4;
+        private System.Windows.Forms.DataVisualization.Charting.Chart cBuyingSelling;
     }
 }
 

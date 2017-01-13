@@ -21,13 +21,14 @@ namespace Client_Application
         private List<Double> bidPrices = new List<Double>();
         private List<Double> askPrices = new List<Double>();
         private TradingStrategy strategy = new TradingStrategy();
+        private Dictionary<int,Double> buyingPrices = new Dictionary<int, double>();
+        private Dictionary<int, Double> sellingPrices = new Dictionary<int, double>();
         private Decimal profit = 0m;
         private Decimal portfolioValue = 0m;
         private const Decimal brokerage = 0.005m;
         private long totalOrders = 0;
         private string data;
         private long totalQuantityPortfolio = 0;
-        private long shortLimit = -50000;
 
         #endregion
 
@@ -73,6 +74,31 @@ namespace Client_Application
                 return askPrices;
             }
 
+        }
+
+        public long TotalQuantityPortfolio
+        {
+            get
+            {
+                return totalQuantityPortfolio;
+            }
+        }
+
+        public Dictionary<int, double> BuyingPrices
+        {
+            get
+            {
+                return buyingPrices;
+            }
+
+        }
+
+        public Dictionary<int, double> SellingPrices
+        {
+            get
+            {
+                return sellingPrices;
+            }
         }
 
         public Client(bool dataGet)
@@ -176,12 +202,9 @@ namespace Client_Application
                     }
                 }
             }
-            if (marketDataGet) { excel.insertIntoExcelFile(marketData, quoteMessageCount); }
-            else
-            {
-                bidPrices.Add(Double.Parse(marketData["BidPrice"]));
-                askPrices.Add(Double.Parse(marketData["AskPrice"]));
-            }
+            bidPrices.Add(Double.Parse(marketData["BidPrice"]));
+            askPrices.Add(Double.Parse(marketData["AskPrice"]));
+            excel.insertIntoExcelFile(marketData, quoteMessageCount);
         }
 
         public void StartExcel(string file)
@@ -198,20 +221,18 @@ namespace Client_Application
         {
             try
             {
-                Signal signal1 = strategy.BollingerBand(bidTemp: bidPrices, askTemp: askPrices);
-                Signal signal2 = strategy.SimpleMovingAverage(bidTemp: bidPrices, askTemp: askPrices, period: 50);
-                Signal signal3 = strategy.Decomposition(bidTemp: bidPrices, askTemp: askPrices);
-                Signal signal4 = strategy.TwoMovingAverage(bidPrices,askPrices);
-                long quantity = (long)((int)signal1 + 0.5*(int)signal2 + 5*(int)signal3 + 2*(int)signal4)*1000;
-                totalQuantityPortfolio += quantity;
-                if (totalQuantityPortfolio < shortLimit) {
-                    sendOrderRequest(createOrder(totalQuantityPortfolio - shortLimit, new Side(Side.BUY)));
-                }
-                else {
-                    if (quantity > 0) { sendOrderRequest(createOrder(quantity, new Side(Side.BUY))); }
-                    else if (quantity < 0) { sendOrderRequest(createOrder(quantity, new Side(Side.SELL))); }
-                }
+                int multiplyingFactor = 1000;
+                //Signal signal1 = strategy.BollingerBand(bidTemp: bidPrices, askTemp: askPrices);
 
+                //Signal signal2 = strategy.SimpleMovingAverage(bidTemp: bidPrices, askTemp: askPrices, period: 60);
+                Signal signal3 = strategy.Decomposition(bidTemp: bidPrices, askTemp: askPrices);
+                //Signal signal4 = strategy.TwoMovingAverage(bidPrices,askPrices);
+                //Signal signal5 = strategy.MACD(askTemp: askPrices);
+                //long quantity = (long)(((int)signal1 + 0.25*(int)signal2 + 4*(int)signal3 + 0.5*(int)signal4 + 2*(int)signal5)*multiplyingFactor);
+                long quantity = (int)signal3 * multiplyingFactor;
+                totalQuantityPortfolio += quantity;
+                if (quantity > 0) { sendOrderRequest(createOrder(quantity, new Side(Side.BUY))); }
+                else if (quantity < 0) { sendOrderRequest(createOrder(-1*quantity, new Side(Side.SELL))); }
             }
             catch (Exception e)
             {
@@ -242,21 +263,24 @@ namespace Client_Application
 
         public void calculateProfit(QuickFix.FIX44.ExecutionReport order)
         {
+            if(order.Side.getValue() == '1') { buyingPrices.Add(askPrices.Count, (double)order.Price.getValue()); }
+            else if(order.Side.getValue() == '2') { sellingPrices.Add(askPrices.Count, (double)order.Price.getValue()); }
             if (order.Side.getValue() == '1')
             {
                 portfolioValue -= (order.Price.getValue() + brokerage)* order.CumQty.getValue();
                 totalOrders += (long)order.CumQty.getValue();
-            }else if (order.Side.getValue() == '2')
+            }
+            else if (order.Side.getValue() == '2')
             {
                 portfolioValue += (order.Price.getValue() - brokerage)* order.CumQty.getValue();
                 totalOrders -= (long)order.CumQty.getValue();
             }
-            if(totalOrders < 0)
+            if (totalOrders < 0)
             {
                 profit = portfolioValue + (Convert.ToDecimal(askPrices[askPrices.Count-1]) + brokerage) * totalOrders; 
             }else if (totalOrders > 0)
             {
-                profit = portfolioValue + (Convert.ToDecimal(bidPrices[bidPrices.Count - 1]) - brokerage) * totalOrders;
+                profit = portfolioValue + (Convert.ToDecimal(bidPrices[bidPrices.Count-1]) - brokerage) * totalOrders;
             }
         }
 
@@ -264,18 +288,19 @@ namespace Client_Application
         {
             if (totalOrders < 0)
             {
-                profit = portfolioValue + (Convert.ToDecimal(askPrices[askPrices.Count - 1]) + brokerage) * totalOrders;
+                profit = portfolioValue + (Convert.ToDecimal(askPrices[askPrices.Count-1]) + brokerage) * totalOrders;
             }
             else if (totalOrders > 0)
             {
-                profit = portfolioValue + (Convert.ToDecimal(bidPrices[bidPrices.Count - 1]) - brokerage) * totalOrders;
+                profit = portfolioValue + (Convert.ToDecimal(bidPrices[bidPrices.Count-1]) - brokerage) * totalOrders;
             }
         }
 
         public List<Double> getMovingAverage(int period)
         {
+            List<Double> temp = new List<double>(askPrices);
             List<Double> price = new List<double>();
-            foreach(Double val in askPrices.MovingAverage(period))
+            foreach(Double val in temp.MovingAverage(period))
             {
                 price.Add(val);
             }
