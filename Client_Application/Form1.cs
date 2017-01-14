@@ -42,11 +42,10 @@ namespace Client_Application
                 timer4.Interval = 500;
                 PricePlot.ChartAreas[0].AxisX.Minimum = 0;
                 cBuyingSelling.ChartAreas[0].AxisX.Minimum = 0;
+                cBuyingSelling.ChartAreas[1].AxisX.Minimum = 0;
                 PricePlot.ChartAreas[1].AxisX.Minimum = 0;
                 PricePlot.ChartAreas[2].AxisX.Minimum = 0;
                 PricePlot.ChartAreas[0].AxisY.Title = "Price";
-                cBuyingSelling.ChartAreas[0].AxisY.Title = "Price";
-                cBuyingSelling.ChartAreas[0].AxisX.Title = "Time";
                 PricePlot.ChartAreas[1].AxisY.Title = "Price On Average";
                 PricePlot.ChartAreas[1].AxisY.Title = "Price after removing Trend";
                 PricePlot.ChartAreas[1].Visible = false;
@@ -152,7 +151,7 @@ namespace Client_Application
         private void timer2_Tick(object sender, EventArgs e)
         {
             lProfit.Text = "Profit: " + application.Profit.ToString("C");
-            lPosition.Text = "Position: " + application.TotalQuantityPortfolio;
+            lPosition.Text = "Position: " + application.TotalOrders;
             if (application.Profit < 0)
             {
                 lProfit.ForeColor = System.Drawing.Color.Red;
@@ -185,7 +184,7 @@ namespace Client_Application
         {
             try
             {
-                int shortPeriod = 20;int trendPeriod = 990; // Trend Period Came from Analysis of the Data
+                int shortPeriod = 50;int trendPeriod = 990; // Trend Period Came from Analysis of the Data
                 int longPeriod = 200;
                 List<Double> price = new List<double>(application.AskPrices);
                 Dictionary<int, Double> buyingPoints = new Dictionary<int, Double>(application.BuyingPrices);
@@ -199,6 +198,7 @@ namespace Client_Application
                 if (price.Count > 500)
                 {
                     cBuyingSelling.ChartAreas[0].AxisX.Minimum = price.Count - 500;
+                    cBuyingSelling.ChartAreas[1].AxisX.Minimum = price.Count - 500;
                 }
                 if (price.Count >= shortPeriod)
                 {
@@ -210,6 +210,18 @@ namespace Client_Application
                     List<double> priceMa = application.getMovingAverage(longPeriod);
                     for (int i = longPeriod; i < price.Count; i++) { cBuyingSelling.Series[2].Points.AddXY(i, priceMa[i]); }
                 }
+                if (application.Strategy.MacdLine.Count >= 9)
+                {
+                    cBuyingSelling.ChartAreas[1].Visible = true;
+                    List<double> macdLine = application.Strategy.MacdLine;
+                    List<double> signalLine = application.Strategy.SignalLine;
+                    for (int i = 26; i < 26+macdLine.Count; i++) { cBuyingSelling.Series[5].Points.AddXY(i, macdLine[i-26]); }
+                    for (int i = 34; i < 34+signalLine.Count; i++) { cBuyingSelling.Series[6].Points.AddXY(i, signalLine[i-34]); }
+                    PricePlot.ChartAreas[2].AxisY.Minimum = macdLine.Minimum() - 0.5;
+                    PricePlot.ChartAreas[2].AxisY.Maximum = macdLine.Maximum() + 0.5;
+                }
+
+
                 if (price.Count >= trendPeriod)
                 {
                     PricePlot.ChartAreas[1].Visible = true;

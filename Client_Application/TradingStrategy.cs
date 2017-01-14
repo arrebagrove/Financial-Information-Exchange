@@ -8,7 +8,7 @@ using NLog;
 namespace Client_Application
 {
     public enum Signal { Buy = 1, Sell = -1, Hold = 0 };
-    public enum CurrentTrend {Bullish = 1, Bearish = -1, None =0 };
+    public enum CurrentTrend { Bullish = 1, Bearish = -1, None = 0 };
 
     class TradingStrategy
     {
@@ -18,8 +18,6 @@ namespace Client_Application
         #region Decomposition Variables
         private List<Double> bidMAWithoutTrend = new List<double>();
         private List<Double> askMAWithoutTrend = new List<double>();
-        private List<Double> maxBidVals = new List<double>();
-        private List<Double> minAskVals = new List<double>();
         private int lastMaxBidValueLoc = -1;
         private int lastMinAskValueLoc = -1;
         private int megaCount = 0;
@@ -29,7 +27,23 @@ namespace Client_Application
         private List<Double> signalLine = new List<double>();
         private CurrentTrend trendCurrent = CurrentTrend.None;
         private CurrentTrend trendBolingerBand = CurrentTrend.None;
-        private int countBolinger = 0;
+
+        public List<double> MacdLine
+        {
+            get
+            {
+                return macdLine;
+            }
+
+        }
+
+        public List<double> SignalLine
+        {
+            get
+            {
+                return signalLine;
+            }
+        }
 
         #endregion
 
@@ -40,7 +54,7 @@ namespace Client_Application
             return Signal.Buy;
         }
 
-        public Signal BollingerBand(List<Double> bidTemp,List<Double> askTemp, int period = 20)
+        public Signal BollingerBand(List<Double> bidTemp, List<Double> askTemp, int period = 20)
         {
             if (bidTemp.Count >= period)
             {
@@ -48,68 +62,39 @@ namespace Client_Application
                 List<Double> ask = askTemp.GetRange(askTemp.Count - period, period);
                 Double upperLimit = bid.Mean() + (2 * bid.StandardDeviation());
                 Double lowerLimit = ask.Mean() - (2 * ask.StandardDeviation());
-                if (ask[ask.Count - 1] <= lowerLimit && (trendBolingerBand != CurrentTrend.Bullish || countBolinger >=period)) {
-                    countBolinger = -1;
-                    trendBolingerBand = CurrentTrend.Bullish;
-                    return Signal.Buy; }
-                else if (bid[bid.Count - 1] >= upperLimit && (trendBolingerBand != CurrentTrend.Bearish || countBolinger>=period)) {
-                    countBolinger = -1;
-                    trendBolingerBand = CurrentTrend.Bearish;
-                    return Signal.Sell; }
-                countBolinger++;
-            }
-            return Signal.Hold;
-        }
-        
-        public Signal SimpleMovingAverage(List<Double> bidTemp, List<Double> askTemp, int period)
-        {
-            try
-            {
-                List<Double> bid = new List<Double>(bidTemp);
-                List<Double> ask = new List<Double>(askTemp);
-                int count = bid.Count;
-                if (count >= period)
+                if (ask[ask.Count - 1] <= lowerLimit && trendBolingerBand != CurrentTrend.Bullish)
                 {
-                    var bidLast200 = bid.Skip(count - period).Take(period);
-                    var askLast200 = ask.Skip(count - period).Take(period);
-                    if (((askLast200.Skip(1).Take(period - 2).Mean() - askLast200.Take(period - 2).Mean()) < 0) && ((askLast200.Skip(2).Take(period - 2).Mean() - askLast200.Skip(1).Take(period - 2).Mean()) > 0))
-                    {
-                        return Signal.Sell;
-                    }
-                    else if (((bidLast200.Skip(1).Take(period - 2).Mean() - bidLast200.Take(period - 2).Mean()) > 0) && ((bidLast200.Skip(2).Take(period - 2).Mean() - bidLast200.Skip(1).Take(period - 2).Mean()) < 0))
-                    {
-                        return Signal.Buy;
-                    }
-
+                    trendBolingerBand = CurrentTrend.Bullish;
+                    return Signal.Buy;
+                }
+                else if (bid[bid.Count - 1] >= upperLimit && trendBolingerBand != CurrentTrend.Bearish)
+                {
+                    trendBolingerBand = CurrentTrend.Bearish;
+                    return Signal.Sell;
                 }
             }
-            catch (Exception e)
-            {
-                logger.Warn("Maybe a message has been skipped");
-                logger.Warn(e.Message);
-                logger.Warn(e.StackTrace);
-            }
-
             return Signal.Hold;
         }
 
-        public Signal MACD(List<Double> askTemp, int longPeriod = 26, int midPeriod = 12,int shortPeriod = 9)
+        public Signal MACD(List<Double> askTemp, int longPeriod = 26, int midPeriod = 12, int shortPeriod = 9)
         {
             try
             {
                 if (askTemp.Count >= longPeriod)
                 {
                     List<Double> ask = askTemp.GetRange(askTemp.Count - longPeriod, longPeriod);
-                    macdLine.Add(exponentialMovingAverage(ask.GetRange(ask.Count-midPeriod,midPeriod)) - exponentialMovingAverage(ask));
+                    macdLine.Add(exponentialMovingAverage(ask.GetRange(ask.Count - midPeriod, midPeriod)) - exponentialMovingAverage(ask));
                     if (macdLine.Count >= shortPeriod) { signalLine.Add(exponentialMovingAverage(macdLine)); }
                     if (macdLine.Count > shortPeriod)
                     {
-                        if ((macdLine[macdLine.Count - 1] >= signalLine[signalLine.Count - 1]) && (macdLine[macdLine.Count - 1] < signalLine[signalLine.Count - 1]))
+                        if ((macdLine[macdLine.Count - 2] >= signalLine[signalLine.Count - 2]) && (macdLine[macdLine.Count - 1] < signalLine[signalLine.Count - 1]))
                         {
+                            trendCurrent = CurrentTrend.Bearish;
                             return Signal.Sell;
                         }
-                        else if ((macdLine[macdLine.Count - 1] < signalLine[signalLine.Count - 1]) && (macdLine[macdLine.Count - 1] >= signalLine[signalLine.Count - 1]))
+                        else if ((macdLine[macdLine.Count - 2] < signalLine[signalLine.Count - 2]) && (macdLine[macdLine.Count - 1] >= signalLine[signalLine.Count - 1]))
                         {
+                            trendCurrent = CurrentTrend.Bullish;
                             return Signal.Buy;
                         }
                     }
@@ -129,7 +114,7 @@ namespace Client_Application
             try
             {
                 int count = bidTemp.Count;
-                if (count >= period)
+                if (count >= period && lastMaxBidValueLoc == -1 && lastMinAskValueLoc == -1)
                 {
                     List<Double> bid = bidTemp.GetRange(megaCount, period);
                     List<Double> ask = askTemp.GetRange(megaCount++, period);
@@ -137,23 +122,21 @@ namespace Client_Application
                     double askMA = exponentialMovingAverage(ask);
                     bidMAWithoutTrend.Add(bid[bid.Count - 1] / bidMA);
                     askMAWithoutTrend.Add(ask[ask.Count - 1] / askMA);
-                    if(bidMAWithoutTrend.Count % period == 0)
-                    { 
-                        double temp = bidMAWithoutTrend.Max();
-                        maxBidVals.Add(bidMAWithoutTrend.IndexOf(temp));
-                        temp = askMAWithoutTrend.Min();
-                        minAskVals.Add(askMAWithoutTrend.IndexOf(temp));
+                    if (bidMAWithoutTrend.Count % period == 0)
+                    {
+                        List<double> temporary = new List<double>();
+                        foreach (Double val in bidMAWithoutTrend.MovingAverage(50).Skip(50)) { temporary.Add(val); }
+                        lastMaxBidValueLoc = temporary.IndexOf(temporary.Max());
+                        foreach (Double val in askMAWithoutTrend.MovingAverage(50).Skip(50)) { temporary.Add(val); }
+                        lastMinAskValueLoc = temporary.IndexOf(temporary.Min());                     
                         bidMAWithoutTrend.Clear();
                         askMAWithoutTrend.Clear();
-                        lastMaxBidValueLoc = ((count/period)*period) + (int)maxBidVals.Mean();
-                        lastMinAskValueLoc = ((count/period)*period) + (int)minAskVals.Mean();
                     }
-                    if(lastMaxBidValueLoc >0 && lastMinAskValueLoc > 0 && count > period)
-                    {
-                        if(count == lastMaxBidValueLoc + period) { return Signal.Sell; }
-                        else if(count == lastMinAskValueLoc + period) { return Signal.Buy; }
-                    }
-
+                }
+                if (lastMaxBidValueLoc > 0 && lastMinAskValueLoc > 0 && count > period)
+                {
+                    if (count == lastMaxBidValueLoc + ((int)(count / period)) * period) { return Signal.Sell; }
+                    else if (count == lastMinAskValueLoc + ((int)(count / period)) * period) { return Signal.Buy; }
                 }
             }
             catch (Exception e)
@@ -161,11 +144,11 @@ namespace Client_Application
                 logger.Warn("Maybe a message has been skipped");
                 logger.Warn(e.Message);
                 logger.Warn(e.StackTrace);
-            }  
+            }
             return Signal.Hold;
         }
 
-        public Signal TwoMovingAverage(List<Double> bidTemp, List<Double> askTemp, int periodShort = 60, int periodLong = 200)
+        public Signal TwoMovingAverage(List<Double> bidTemp, List<Double> askTemp, int periodShort = 50, int periodLong = 200)
         {
             try
             {
@@ -173,9 +156,9 @@ namespace Client_Application
                 {
                     List<Double> bid = bidTemp.GetRange(bidTemp.Count - periodLong - 1, periodLong + 1);
                     List<Double> ask = bidTemp.GetRange(askTemp.Count - periodLong - 1, periodLong + 1);
-                    if ((ask.GetRange(0,periodLong).Mean() >= ask.GetRange(0,periodShort).Mean()) && (ask.GetRange(1, periodLong).Mean() < ask.GetRange(1, periodShort).Mean()))
+                    if ((ask.GetRange(0, periodLong).Mean() >= ask.GetRange(ask.Count - periodShort - 1, periodShort).Mean()) && (ask.GetRange(1, periodLong).Mean() < ask.GetRange(ask.Count - periodShort, periodShort).Mean()))
                     { return Signal.Buy; }
-                    else if ((bid.GetRange(0, periodLong).Mean() < bid.GetRange(0, periodShort).Mean()) && (bid.GetRange(1, periodLong).Mean() >= bid.GetRange(1, periodShort).Mean()))
+                    else if ((bid.GetRange(0, periodLong).Mean() < bid.GetRange(bid.Count - periodShort - 1, periodShort).Mean()) && (bid.GetRange(1, periodLong).Mean() >= bid.GetRange(ask.Count - periodShort, periodShort).Mean()))
                     { return Signal.Sell; }
                 }
 
@@ -195,7 +178,7 @@ namespace Client_Application
         #region Other Functions
         private double exponentialMovingAverage(List<Double> data, double weight = -1)
         {
-            if(weight == -1) { weight = (2.0 /Convert.ToDouble (1 + data.Count)); }
+            if (weight == -1) { weight = (2.0 / Convert.ToDouble(1 + data.Count)); }
             double result = 0;
             int power = data.Count - 1;
             foreach (double value in data)
